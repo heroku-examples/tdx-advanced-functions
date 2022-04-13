@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mulesoft_Organization_Id__c</fullName>
+    <description
+  >The Organization Id obtained as described here https://support.mulesoft.com/s/article/How-to-know-my-Organization-ID-Org-ID-on-the-Anypoint-Platform</description>
+    <externalId>false</externalId>
+    <label>Mulesoft Organization Id</label>
+    <length>75</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

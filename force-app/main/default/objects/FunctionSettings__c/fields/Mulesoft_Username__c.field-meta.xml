@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mulesoft_Username__c</fullName>
+    <description
+  >The username used to log into the Anypoint Exchange</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >https://anypoint.mulesoft.com/exchange/portals/anypoint-platform/f1e97bc6-315a-4490-82a7-23abe036327a.anypoint-platform/access-management-api</inlineHelpText>
+    <label>Mulesoft Username</label>
+    <length>75</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

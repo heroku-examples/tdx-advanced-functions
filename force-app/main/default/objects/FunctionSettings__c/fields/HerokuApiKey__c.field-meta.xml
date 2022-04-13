@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>HerokuApiKey__c</fullName>
+    <description
+  >Heroku API key.  See https://devcenter.heroku.com/articles/platform-api-quickstart#authentication.</description>
+    <externalId>false</externalId>
+    <inlineHelpText
+  >https://devcenter.heroku.com/articles/platform-api-quickstart#authentication</inlineHelpText>
+    <label>HerokuApiKey</label>
+    <length>75</length>
+    <required>true</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

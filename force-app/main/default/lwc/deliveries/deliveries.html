@@ -1,0 +1,23 @@
+<template>
+  <lightning-card title="Current Deliveries" icon-name="standard:account">
+    <div class="slds-var-m-around_medium">
+      <template if:false={mapMarkers.length}> No current deliveries. </template>
+      <template if:true={mapMarkers.length}>
+        <lightning-tabset>
+          <lightning-tab label="Map"
+            ><lightning-map map-markers={mapMarkers}></lightning-map
+          ></lightning-tab>
+          <lightning-tab label="Route Order">
+            <lightning-datatable
+              key-field="number"
+              data={datatableData}
+              columns={datatableColumns}
+              sorted-by="number"
+            >
+            </lightning-datatable>
+          </lightning-tab>
+        </lightning-tabset>
+      </template>
+    </div>
+  </lightning-card>
+</template>

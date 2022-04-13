@@ -1,0 +1,13 @@
+{
+  "records": [
+    {
+      "attributes": {
+        "type": "Vehicle__c",
+        "referenceId": "Vehicle__cRef1"
+      },
+      "Name": "Van",
+      "LocationX__c": 10,
+      "LocationY__c": 10
+    }
+  ]
+}
