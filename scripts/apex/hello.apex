@@ -9,3 +9,14 @@ functions.Function accountFunction = functions.Function.get('tdx_advanced_functi
 functions.FunctionInvocation invocation = accountFunction.invoke('{ "accountName": "Frisco Deliveries" }');
 String jsonResponse = invocation.getResponse();
 System.debug('Got response ' + jsonResponse);
+// Log error, if applicable
+if (invocation.getStatus() == functions.FunctionInvocationStatus.ERROR) {
+    functions.FunctionInvocationError resultError = invocation.getError();
+    if (resultError != null) {
+        System.debug('Error type: ' + resultError.getType());
+        System.debug('Error message: ' + resultError.getMessage());
+    } else {
+        System.debug('Error: UNKNOWN');
+    }
+    return;
+}
