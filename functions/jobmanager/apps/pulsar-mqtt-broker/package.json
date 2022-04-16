@@ -1,0 +1,18 @@
+{
+  "name": "pulsar-mqtt-broker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pulsar - MQTT Broker over WebSockets",
+  "author": "Salesforce Developer Relations",
+  "license": "CC0-1.0",
+  "scripts": {
+    "lint": "eslint '**/*.{js,ts}'"
+  },
+  "dependencies": {
+    "aedes": "^0.46.3",
+    "websocket-stream": "^5.5.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.12.0"
+  }
+}
