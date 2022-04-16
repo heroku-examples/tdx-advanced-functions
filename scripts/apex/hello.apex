@@ -5,7 +5,7 @@
 // You can also execute the entire file by running the command:
 //     SFDX: Execute Anonymous Apex with Editor Contents
 
-functions.Function accountFunction = functions.Function.get('tdx_advanced_functions.routerplanner');
+functions.Function accountFunction = functions.Function.get('tdx_advanced_functions.routeplanner');
 functions.FunctionInvocation invocation = accountFunction.invoke('{ "accountName": "Frisco Deliveries" }');
 String jsonResponse = invocation.getResponse();
 System.debug('Got response ' + jsonResponse);
