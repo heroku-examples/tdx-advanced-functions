@@ -171,6 +171,7 @@ async function canRunJob(jobId) {
     const status = await redisClient.hGet(`job:${jobId}`, "status");
     canRun = status !== "completed";
   }
+  await redisClient.quit();
   return canRun;
 }
 
@@ -183,6 +184,6 @@ async function registerJob(jobId) {
     await redisClient.hSet(`job:${jobId}`, "status", "completed");
     status = "completed";
   }
-  redisClient.quit();
+  await redisClient.quit();
   return status;
 }
