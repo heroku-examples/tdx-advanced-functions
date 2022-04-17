@@ -1,5 +1,6 @@
 import pg from "pg";
 import * as mqtt from "mqtt";
+import { createClient } from "redis";
 const { Client } = pg;
 
 /**
@@ -21,7 +22,14 @@ export default async function (event, context, logger) {
     `Invoking ChargingStations with payload ${JSON.stringify(event.data || {})}`
   );
 
-  const { vin, latitude, longitude, distance = 1, results = 10 } = event.data;
+  const {
+    vin,
+    latitude,
+    longitude,
+    distance = 1,
+    results = 10,
+    jobId
+  } = event.data;
 
   if (!vin) {
     throw new Error(`vin is required`);
@@ -33,6 +41,12 @@ export default async function (event, context, logger) {
 
   if (!longitude) {
     throw new Error(`longitude is required`);
+  }
+
+  if (jobId && !(await canRunJob(jobId))) {
+    throw new Error(
+      `Job ${jobId} already completed or doesn't exist, please schedule a new job`
+    );
   }
 
   const pgClient = await pgConnect();
@@ -64,6 +78,16 @@ export default async function (event, context, logger) {
 
   pgClient.end();
   mqttClient.end();
+
+  // Register Job Progress
+  if (jobId) {
+    const status = await registerJob(jobId);
+    response.job = {
+      jobId,
+      status
+    };
+  }
+
   return response;
 }
 
@@ -120,4 +144,45 @@ async function sendChargingStations(mqttClient, { vin, stations }) {
       );
     });
   });
+}
+
+async function redisConnect() {
+  const REDIS_URL = process.env.REDIS_URL;
+  if (!REDIS_URL) {
+    throw new Error(`REDIS_URL environment variable is required`);
+  }
+  // Connect to Redis
+  const redisClient = createClient({
+    url: REDIS_URL,
+    socket: {
+      tls: true,
+      rejectUnauthorized: false
+    }
+  });
+  await redisClient.connect();
+  return redisClient;
+}
+
+async function canRunJob(jobId) {
+  let canRun = false;
+  const redisClient = await redisConnect();
+  const exists = await redisClient.exists(`job:${jobId}`);
+  if (exists) {
+    const status = await redisClient.hGet(`job:${jobId}`, "status");
+    canRun = status !== "completed";
+  }
+  return canRun;
+}
+
+async function registerJob(jobId) {
+  const redisClient = await redisConnect();
+  let status = "running";
+  const jobs = await redisClient.hGet(`job:${jobId}`, "jobs");
+  const completed = await redisClient.hIncrBy(`job:${jobId}`, "completed", 1);
+  if (+jobs === +completed) {
+    await redisClient.hSet(`job:${jobId}`, "status", "completed");
+    status = "completed";
+  }
+  redisClient.quit();
+  return status;
 }
