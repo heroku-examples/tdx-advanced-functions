@@ -21,11 +21,18 @@ public with sharing class DeliveryRouteController {
       List<DeliveryWaypoint__c> waypoints = [
         SELECT Id
         FROM DeliveryWaypoint__c
-        WHERE DeliveryPlan__c = :deliveryPlanId
+        WHERE DeliveryRoute__r.DeliveryPlan__c = :deliveryPlanId
         WITH SECURITY_ENFORCED
       ];
       Integer jobs = waypoints.size();
+      if (jobs == 0) {
+        throw new AuraHandledException(
+          'No waypoints found for this delivery plan.'
+        );
+      }
+      // Schedule Job
       JobManagerFunction.JobStatus status = JobManagerFunction.execute(jobs);
+      // Retrieve Charging Stations by Waypoint in Parallel
       for (DeliveryWaypoint__c waypoint : waypoints) {
         System.enqueueJob(
           new ChargingStationsQueueable(status.jobId, waypoint)

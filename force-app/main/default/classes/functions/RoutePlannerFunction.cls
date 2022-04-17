@@ -11,11 +11,11 @@ public with sharing class RoutePlannerFunction {
 
     // Check if there is any error during the invocation
     if (invocation.getStatus() == functions.FunctionInvocationStatus.ERROR) {
-      throw new CalloutException(
-        (invocation.getError() != null
-          ? invocation.getError().getMessage()
-          : 'UNKNOWN')
-      );
+      String errorMessage = invocation.getError() != null
+        ? invocation.getError().getMessage()
+        : 'UNKNOWN';
+      System.debug(errorMessage);
+      throw new CalloutException(errorMessage);
     }
   }
 }

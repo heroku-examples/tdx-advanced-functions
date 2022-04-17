@@ -8,22 +8,13 @@ public with sharing class ChargingStationsQueueable implements Queueable {
   }
 
   public void execute(QueueableContext context) {
-    try {
-      ChargingStationsFunction.Input input = new ChargingStationsFunction.Input();
-      System.debug(
-        'Scheduling Job: ' +
-        jobId +
-        ' for waypoint: ' +
-        waypoint.Id
-      );
-      input.jobId = this.jobId;
-      input.waypointId = this.waypoint.id;
-      ChargingStationsFunction.execute(
-        input,
-        new ChargingStationsFunction.Callback(this.jobId)
-      );
-    } catch (Exception ex) {
-      System.debug(ex);
-    }
+    ChargingStationsFunction.Input input = new ChargingStationsFunction.Input();
+    System.debug('Scheduling Job: ' + jobId + ' for waypoint: ' + waypoint.Id);
+    input.jobId = this.jobId;
+    input.waypointId = this.waypoint.id;
+    ChargingStationsFunction.execute(
+      input,
+      new ChargingStationsFunction.Callback(this.jobId)
+    );
   }
 }

@@ -3,10 +3,14 @@
     <div class="slds-var-m-around_medium">
       <template if:false={mapMarkers.length}>
         No current deliveries.
-        <lightning-button onclick={handlePlanDeliveryRoute}
-          >Plan Delivery</lightning-button
-        ></template
-      >
+        <p>
+          <lightning-button
+            label="Plan Delivery"
+            variant="brand"
+            onclick={handlePlanDeliveryRoute}
+          ></lightning-button>
+        </p>
+      </template>
       <template if:true={mapMarkers.length}>
         <lightning-tabset>
           <lightning-tab label="Map"

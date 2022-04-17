@@ -26,11 +26,11 @@ public with sharing class ChargingStationsFunction {
     public void handleResponse(functions.FunctionInvocation invocation) {
       // Check if there is any error during the invocation
       if (invocation.getStatus() == functions.FunctionInvocationStatus.ERROR) {
-        throw new CalloutException(
-          (invocation.getError() != null
-            ? invocation.getError().getMessage()
-            : 'UNKNOWN')
-        );
+        String errorMessage = invocation.getError() != null
+          ? invocation.getError().getMessage()
+          : 'UNKNOWN';
+        System.debug(errorMessage);
+        throw new CalloutException(errorMessage);
       }
 
       String response = invocation.getResponse();
