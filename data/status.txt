@@ -1,6 +1,0 @@
-available
-reserved
-returned
-cleaning
-exception
-maintenance

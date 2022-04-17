@@ -1,6 +1,7 @@
 import pg from "pg";
 import * as mqtt from "mqtt";
 import { createClient } from "redis";
+import { request } from "undici";
 const { Client } = pg;
 
 /**
@@ -23,24 +24,14 @@ export default async function (event, context, logger) {
   );
 
   const {
-    vin,
-    latitude,
-    longitude,
+    jobId, // Used to track the status of the job
+    waypointId, // Used to store Charging Stations back to Salesforce
     distance = 1,
-    results = 10,
-    jobId
+    results = 10
   } = event.data;
 
-  if (!vin) {
-    throw new Error(`vin is required`);
-  }
-
-  if (!latitude) {
-    throw new Error(`latitude is required`);
-  }
-
-  if (!longitude) {
-    throw new Error(`longitude is required`);
+  if (!waypointId) {
+    throw new Error(`waypointId is required`);
   }
 
   if (jobId && !(await canRunJob(jobId))) {
@@ -49,7 +40,36 @@ export default async function (event, context, logger) {
     );
   }
 
+  // Get the Delivery Plan Id, Location, and Vin From Salesforce
+  const { records } = await context.org.dataApi.query(`
+    SELECT
+       Vehicle_Vin__c,
+       Service__r.Location__Latitude__s,
+       Service__r.Location__Longitude__s,
+       DeliveryRoute__r.DeliveryPlan__r.Id
+    FROM DeliveryWaypoint__c WHERE Id = '${waypointId}'
+    LIMIT 1
+  `);
+
+  if (!records || records.length === 0) {
+    throw new Error(`No waypoint found with Id ${waypointId}`);
+  }
+
+  // Extract values from Record
+  const [waypoint] = records;
+  const vin = waypoint?.fields?.vehicle_vin__c;
+  const deliveryPlanId =
+    waypoint?.fields?.deliveryroute__r?.DeliveryPlan__r?.Id;
+  const latitude = waypoint?.fields?.service__r?.Location__Latitude__s;
+  const longitude = waypoint?.fields?.service__r?.Location__Longitude__s;
+
+  if (!vin || !deliveryPlanId || !latitude || !longitude) {
+    throw new Error(`Missing required fields from Delivery Waypoint`);
+  }
+
+  // Connect to PostgreSQL Database
   const pgClient = await pgConnect();
+  // Connect to MQTT Message Broker
   const mqttClient = await mqttConnect();
 
   // Get closest charging stations from the given location
@@ -68,14 +88,37 @@ export default async function (event, context, logger) {
     results
   ]);
 
+  // Store Charging Stations into Salesforce using UoW Pattern
+  const uow = context.org.dataApi.newUnitOfWork();
+  for (const station of stations) {
+    uow.registerCreate({
+      type: "ChargingStation__c",
+      fields: {
+        Delivery_Waypoint__c: waypointId,
+        Name: station.station_name,
+        Street_Address__c: station.street_address,
+        City__c: station.city,
+        State__c: station.state,
+        Zip__c: station.zip,
+        Location__Latitude__s: station.latitude,
+        Location__Longitude__s: station.longitude,
+        Distance__c: station.distance
+      }
+    });
+  }
+  await context.org.dataApi.commitUnitOfWork(uow);
+
+  // Build Response Object
   const response = {
-    vin,
+    deliveryPlanId,
+    waypointId,
     stations
   };
 
-  // Send Charging Stations to the Car
-  await sendChargingStations(mqttClient, response);
+  // Send Charging Stations to the Vehicle
+  await sendChargingStations(mqttClient, { vin, stations });
 
+  // Disconnect from Database and MQTT
   pgClient.end();
   mqttClient.end();
 
@@ -86,6 +129,12 @@ export default async function (event, context, logger) {
       jobId,
       status
     };
+
+    if (status === "completed") {
+      logger.info(`Job ${jobId} completed`);
+      // Sends Platform Event to Salesforce to mark the job as completed
+      await sendPlatformEvent({ context, logger }, { deliveryPlanId });
+    }
   }
 
   return response;
@@ -109,7 +158,7 @@ async function pgConnect() {
   return client;
 }
 
-// Connect to MQTT Message Broker
+// Connect to MQTT Message Broker on Heroku
 async function mqttConnect() {
   return new Promise((resolve, reject) => {
     const MQTT_URL = process.env.MQTT_URL;
@@ -129,6 +178,7 @@ async function mqttConnect() {
   });
 }
 
+// Send Charging Stations to Vehicle using MQTT Message Broker
 async function sendChargingStations(mqttClient, { vin, stations }) {
   return new Promise((resolve, reject) => {
     mqttClient.subscribe(`/chargingstations/${vin}`, (err) => {
@@ -146,6 +196,7 @@ async function sendChargingStations(mqttClient, { vin, stations }) {
   });
 }
 
+// Connect to Redis Database
 async function redisConnect() {
   const REDIS_URL = process.env.REDIS_URL;
   if (!REDIS_URL) {
@@ -163,6 +214,7 @@ async function redisConnect() {
   return redisClient;
 }
 
+// Verify if a job can be run
 async function canRunJob(jobId) {
   let canRun = false;
   const redisClient = await redisConnect();
@@ -175,6 +227,7 @@ async function canRunJob(jobId) {
   return canRun;
 }
 
+// Register Job Progress
 async function registerJob(jobId) {
   const redisClient = await redisConnect();
   let status = "running";
@@ -186,4 +239,24 @@ async function registerJob(jobId) {
   }
   await redisClient.quit();
   return status;
+}
+
+// Sends Platform Event to Salesforce
+async function sendPlatformEvent({ context, logger }, { deliveryPlanId }) {
+  const { baseUrl, apiVersion } = context.org;
+  const accessToken = context.org.dataApi.accessToken;
+  const url = `${baseUrl}/services/data/v${apiVersion}/sobjects/JobCompleted__e/`;
+  const { statusCode } = await request(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      DeliveryPlanId__c: deliveryPlanId
+    })
+  });
+  logger.info(
+    `Platform Event to Salesforce: ${url} - Status Code: ${statusCode}`
+  );
 }

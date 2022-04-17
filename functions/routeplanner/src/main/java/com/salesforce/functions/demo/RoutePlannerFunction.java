@@ -71,14 +71,15 @@ public class RoutePlannerFunction implements SalesforceFunction<FunctionInput, F
 
       // Query Vehicles using the Data API
       RecordQueryResult vehicles =
-          dataApi.query("SELECT Id, Name, LocationX__c, LocationY__c FROM Vehicle__c");
+          dataApi.query(
+              "SELECT Id, Name, Location__Latitude__s, Location__Longitude__s FROM Vehicle__c");
       for (Record record : vehicles.getRecords()) {
         VehicleTypeImpl.Builder vehicleTypeBuilder =
             VehicleTypeImpl.Builder.newInstance("vehicleType").addCapacityDimension(0, 2);
         VehicleType vehicleType = vehicleTypeBuilder.build();
         String id = record.getStringField("Id").get();
-        Double locationX = record.getDoubleField("LocationX__c").get();
-        Double locationY = record.getDoubleField("LocationY__c").get();
+        Double locationX = record.getDoubleField("Location__Latitude__s").get();
+        Double locationY = record.getDoubleField("Location__Longitude__s").get();
         Builder vehicleBuilder = VehicleImpl.Builder.newInstance(id);
         vehicleBuilder.setStartLocation(Location.newInstance(locationX, locationY));
         vehicleBuilder.setType(vehicleType);
@@ -90,13 +91,13 @@ public class RoutePlannerFunction implements SalesforceFunction<FunctionInput, F
       RecordQueryResult services =
           dataApi.query(
               String.format(
-                  "SELECT Id, Name, LocationX__c, LocationY__c FROM Service__c WHERE Account__c ="
-                      + " '%s'",
+                  "SELECT Id, Name, Location__Latitude__s, Location__Longitude__s FROM Service__c"
+                      + " WHERE Account__c = '%s'",
                   account.getStringField("Id").get()));
       for (Record record : services.getRecords()) {
         String id = record.getStringField("Id").get();
-        Double locationX = record.getDoubleField("LocationX__c").get();
-        Double locationY = record.getDoubleField("LocationY__c").get();
+        Double locationX = record.getDoubleField("Location__Latitude__s").get();
+        Double locationY = record.getDoubleField("Location__Longitude__s").get();
         Service service =
             Service.Builder.newInstance(id)
                 .addSizeDimension(0, 1)

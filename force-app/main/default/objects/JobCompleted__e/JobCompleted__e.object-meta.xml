@@ -2,7 +2,7 @@
 <CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
     <deploymentStatus>Deployed</deploymentStatus>
     <eventType>HighVolume</eventType>
-    <label>RouteCalculated</label>
-    <pluralLabel>RouteCalculated</pluralLabel>
+    <label>Job Completed</label>
+    <pluralLabel>Jobs Completed</pluralLabel>
     <publishBehavior>PublishAfterCommit</publishBehavior>
 </CustomObject>

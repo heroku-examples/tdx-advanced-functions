@@ -11,12 +11,12 @@
                 <field>Name</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Edit</behavior>
-                <field>LocationX__c</field>
+                <behavior>Required</behavior>
+                <field>Vin__c</field>
             </layoutItems>
             <layoutItems>
-                <behavior>Edit</behavior>
-                <field>LocationY__c</field>
+                <behavior>Required</behavior>
+                <field>Location__c</field>
             </layoutItems>
         </layoutColumns>
         <layoutColumns>

@@ -5,9 +5,10 @@
         "type": "Vehicle__c",
         "referenceId": "Vehicle__cRef1"
       },
-      "Name": "Van",
-      "LocationX__c": 10,
-      "LocationY__c": 10
+      "Name": "Pulsar Two - Van",
+      "Vin__c": "4JGCB65E16A196964",
+      "Location__Latitude__s": 10,
+      "Location__Longitude__s": 10
     }
   ]
 }

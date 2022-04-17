@@ -49,7 +49,6 @@ export default async function (event, context, logger) {
 
   const response = {
     jobId,
-    jobs,
     status: "running"
   };
   return response;

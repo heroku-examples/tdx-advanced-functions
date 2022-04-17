@@ -1,7 +1,12 @@
 <template>
   <lightning-card title="Current Deliveries" icon-name="standard:account">
     <div class="slds-var-m-around_medium">
-      <template if:false={mapMarkers.length}> No current deliveries. </template>
+      <template if:false={mapMarkers.length}>
+        No current deliveries.
+        <lightning-button onclick={handlePlanDeliveryRoute}
+          >Plan Delivery</lightning-button
+        ></template
+      >
       <template if:true={mapMarkers.length}>
         <lightning-tabset>
           <lightning-tab label="Map"
