@@ -1,3 +1,14 @@
+# Staging Area to Collect Usefull Commands
+
+    sfdx force:data:tree:import -p data/Account-Service__c-plan.json
+    sfdx force:user:permset:assign -n RoutePlanner
+
+# Functions Environment Variables to Setup
+
+    - MQTT_URL
+    - DATABASE_URL (Through Heroku Data Integration)
+    - REDIS_URL (Through Heroku Data Integration)
+
 # Salesforce DX Project: Next Steps
 
 Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.

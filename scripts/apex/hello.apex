@@ -5,6 +5,18 @@
 // You can also execute the entire file by running the command:
 //     SFDX: Execute Anonymous Apex with Editor Contents
 
-string tempvar = 'Enter_your_name_here';
-System.debug('Hello World!');
-System.debug('My name is ' + tempvar);
+functions.Function accountFunction = functions.Function.get('tdx_advanced_functions.routeplanner');
+functions.FunctionInvocation invocation = accountFunction.invoke('{ "accountName": "Frisco Deliveries" }');
+String jsonResponse = invocation.getResponse();
+System.debug('Got response ' + jsonResponse);
+// Log error, if applicable
+if (invocation.getStatus() == functions.FunctionInvocationStatus.ERROR) {
+    functions.FunctionInvocationError resultError = invocation.getError();
+    if (resultError != null) {
+        System.debug('Error type: ' + resultError.getType());
+        System.debug('Error message: ' + resultError.getMessage());
+    } else {
+        System.debug('Error: UNKNOWN');
+    }
+    return;
+}

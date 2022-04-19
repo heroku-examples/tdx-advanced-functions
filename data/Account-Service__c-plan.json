@@ -1,0 +1,20 @@
+[
+  {
+    "sobject": "Account",
+    "saveRefs": true,
+    "resolveRefs": false,
+    "files": ["Accounts.json"]
+  },
+  {
+    "sobject": "Service__c",
+    "saveRefs": false,
+    "resolveRefs": true,
+    "files": ["Service__cs.json"]
+  },
+  {
+    "sobject": "Vehicle__c",
+    "saveRefs": false,
+    "resolveRefs": true,
+    "files": ["Vehicle__c.json"]
+  }
+]
