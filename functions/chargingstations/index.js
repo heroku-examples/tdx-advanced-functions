@@ -246,7 +246,7 @@ async function sendPlatformEvent({ context, logger }, { deliveryPlanId }) {
   const { baseUrl, apiVersion } = context.org;
   const accessToken = context.org.dataApi.accessToken;
   const url = `${baseUrl}/services/data/v${apiVersion}/sobjects/JobCompleted__e/`;
-  const { statusCode } = await request(url, {
+  const { body, statusCode } = await request(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -259,4 +259,5 @@ async function sendPlatformEvent({ context, logger }, { deliveryPlanId }) {
   logger.info(
     `Platform Event to Salesforce: ${url} - Status Code: ${statusCode}`
   );
+  logger.info(`Platform Event body: ${JSON.stringify(await body.json())}`);
 }

@@ -1,3 +1,4 @@
 {
-    "salesforcedx-vscode-core.show-cli-success-msg": false
+    "salesforcedx-vscode-core.show-cli-success-msg": false,
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

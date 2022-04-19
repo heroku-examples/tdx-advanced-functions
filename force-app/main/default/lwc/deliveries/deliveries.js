@@ -3,7 +3,6 @@ import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { subscribe } from "lightning/empApi";
 import planDeliveryRoute from "@salesforce/apex/DeliveryRouteController.planDeliveryRoute";
 import getWaypoints from "@salesforce/apex/DeliveryRouteController.getWaypoints";
-import loadChargingStations from "@salesforce/apex/DeliveryRouteController.loadChargingStations";
 
 const CDC_CHANNEL = "/data/DeliveryPlan__ChangeEvent";
 const JOB_CHANNEL = "/event/JobCompleted__e";
@@ -66,9 +65,6 @@ export default class Deliveries extends LightningElement {
         console.log(
           `Route has been planned, waiting for waypoints - DeliveryPlanId: ${deliveryPlanId}`
         );
-        loadChargingStations({ deliveryPlanId }).catch((error) => {
-          this.showError(error);
-        });
       }
     };
 
