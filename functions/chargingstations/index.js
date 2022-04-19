@@ -253,7 +253,7 @@ async function sendPlatformEvent({ context, logger }, { deliveryPlanId }) {
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      DeliveryPlanId__c: deliveryPlanId
+      DeliveryPlan_Id__c: deliveryPlanId
     })
   });
   logger.info(

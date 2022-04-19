@@ -70,7 +70,10 @@ export default class Deliveries extends LightningElement {
 
     const jobCompletedCallback = (response) => {
       this.jobData = response;
-      const deliveryPlanId = response?.data?.payload?.DeliveryPlanId__c;
+      const deliveryPlanId = response?.data?.payload?.DeliveryPlan_Id__c;
+      console.log(`
+        Job has completed, fetching waypoints - DeliveryPlanId: ${deliveryPlanId}
+      `);
       if (deliveryPlanId) {
         this.loadWaypoints(deliveryPlanId);
       }
