@@ -243,6 +243,23 @@ async function registerJob(jobId) {
 
 // Sends Platform Event to Salesforce
 async function sendPlatformEvent({ context, logger }, { deliveryPlanId }) {
+  /**
+   * The following example demonstrates how to perform a REST API request to Salesforce
+   * using an http client library.
+   *
+   * For that, we need to build the API endpoint by getting the baseUrl and apiVersion from `context.org`
+   * and the `accessToken` from `context.org.dataApi`.
+   *
+   * We can also simplify this specific example by using the `context.org.dataApi` SDK to create an object.
+   *
+   * await context.org.dataApi.create({
+   *   type: "Job_Completed__e",
+   *   fields: {
+   *     DeliveryPlan_Id__c: deliveryPlanId
+   *   }
+   * });
+   *
+   */
   const { baseUrl, apiVersion } = context.org;
   const accessToken = context.org.dataApi.accessToken;
   const url = `${baseUrl}/services/data/v${apiVersion}/sobjects/JobCompleted__e/`;
@@ -257,7 +274,8 @@ async function sendPlatformEvent({ context, logger }, { deliveryPlanId }) {
     })
   });
   logger.info(
-    `Platform Event to Salesforce: ${url} - Status Code: ${statusCode}`
+    `Platform Event to Salesforce: ${url} - Status Code: ${statusCode} - body: ${JSON.stringify(
+      await body.json()
+    )}`
   );
-  logger.info(`Platform Event body: ${JSON.stringify(await body.json())}`);
 }
