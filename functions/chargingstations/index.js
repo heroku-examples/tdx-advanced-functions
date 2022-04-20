@@ -75,7 +75,7 @@ export default async function (event, context, logger) {
   // Get closest charging stations from the given location
   const chargingStationsQuery = `
   SELECT station_name, street_address, city, state, zip, latitude, longitude,
-  ST_Distance(location, ref_location) * 0.000621371192 AS distance
+  ROUND((ST_Distance(location, ref_location) * 0.000621371192)::numeric, 3) AS distance
   FROM charging_stations CROSS JOIN (SELECT ST_MakePoint($1, $2)::geography AS ref_location) AS ref
   WHERE ST_DWithin(location, ref_location, $3)
   ORDER BY ST_Distance(location, ref_location) LIMIT $4

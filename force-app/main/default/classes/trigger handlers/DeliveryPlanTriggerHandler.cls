@@ -31,6 +31,7 @@ public with sharing class DeliveryPlanTriggerHandler {
       return;
     }
 
-    System.enqueueJob(new ChargingStationsQueueable(waypoints));
+    // Execute the Job
+    ChargingStationsController.execute(waypoints);
   }
 }
