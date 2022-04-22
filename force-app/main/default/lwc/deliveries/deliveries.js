@@ -126,7 +126,6 @@ export default class Deliveries extends LightningElement {
             });
           });
         }
-        console.log(tempMarkers);
         this.datatableData = tempDatatable.sort(this.sortDataTable);
         this.mapMarkers = tempMarkers.sort(this.sortMapMarkers);
         if (this.mapMarkers.length > 0) {
