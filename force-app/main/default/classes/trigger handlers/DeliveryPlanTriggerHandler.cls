@@ -21,17 +21,7 @@ public with sharing class DeliveryPlanTriggerHandler {
       WHERE DeliveryRoute__r.DeliveryPlan__c = :deliveryPlanId
       WITH SECURITY_ENFORCED
     ];
-
-    Integer jobs = waypoints.size();
-    if (jobs == 0) {
-      System.debug(
-        'No waypoints found for this delivery plan. Ignoring execution.'
-      );
-      // Should we trigger the event to notify the frontend? Maybe
-      return;
-    }
-
     // Execute the Job
-    ChargingStationsController.execute(waypoints);
+    ChargingStationsJobManager.execute(waypoints);
   }
 }

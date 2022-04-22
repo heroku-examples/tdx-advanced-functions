@@ -1,6 +1,6 @@
 public with sharing class JobManagerFunction {
   // Schedule a certain number of jobs and return the Job Status
-  public static void execute(Integer jobs, Callback callback) {
+  public static void executeAsync(Integer jobs, Callback callback) {
     functions.Function fn = functions.Function.get(
       'tdx_advanced_functions.jobmanager'
     );

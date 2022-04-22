@@ -1,9 +1,21 @@
 public with sharing class ChargingStationsFunction {
-  public static void execute(Input input, Callback callback) {
+  public static void executeAsync(
+    Input input,
+    functions.FunctionCallback callback
+  ) {
     functions.Function fn = functions.Function.get(
       'tdx_advanced_functions.chargingstations'
     );
     fn.invoke(JSON.serialize(input), callback);
+  }
+
+  public static void executeParallel(List<Input> inputs) {
+    for (Input input : inputs) {
+      ChargingStationsFunction.executeAsync(
+        input,
+        new JobCallback(input.jobId)
+      );
+    }
   }
 
   public class Input {
@@ -17,9 +29,9 @@ public with sharing class ChargingStationsFunction {
     public JobManagerFunction.JobStatus job;
   }
 
-  public class Callback implements functions.FunctionCallback {
+  private class JobCallback implements functions.FunctionCallback {
     protected String jobId;
-    public Callback(String jobId) {
+    public JobCallback(String jobId) {
       this.jobId = jobId;
     }
 
@@ -36,9 +48,13 @@ public with sharing class ChargingStationsFunction {
       String response = invocation.getResponse();
       Output output = (Output) JSON.deserialize(response, Output.class);
 
-      // Check if this callback belongs to this job and it completed successfully
-      if (this.jobId == output.job.jobId && output.job.status == 'completed') {
-        System.debug('Trigger Notification');
+      // Check if this callback was executed in a Job context and it completed successfully
+      if (
+        output.job != null &&
+        (this.jobId == output.job.jobId &&
+        output.job.status == 'completed')
+      ) {
+        System.debug('Trigger Custom Notification');
       }
     }
   }
