@@ -1,5 +1,5 @@
 public with sharing class RoutePlannerFunction {
-  public static void execute(String accountName) {
+  public static String execute(String accountName) {
     functions.Function fn = functions.Function.get(
       'tdx_advanced_functions.routeplanner'
     );
@@ -17,5 +17,8 @@ public with sharing class RoutePlannerFunction {
       System.debug(errorMessage);
       throw new CalloutException(errorMessage);
     }
+
+    String response = invocation.getResponse();
+    return response;
   }
 }

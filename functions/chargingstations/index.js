@@ -75,7 +75,7 @@ export default async function (event, context, logger) {
   // Get closest charging stations from the given location
   const chargingStationsQuery = `
   SELECT station_name, street_address, city, state, zip, latitude, longitude,
-  ST_Distance(location, ref_location) * 0.000621371192 AS distance
+  ROUND((ST_Distance(location, ref_location) * 0.000621371192)::numeric, 3) AS distance
   FROM charging_stations CROSS JOIN (SELECT ST_MakePoint($1, $2)::geography AS ref_location) AS ref
   WHERE ST_DWithin(location, ref_location, $3)
   ORDER BY ST_Distance(location, ref_location) LIMIT $4
@@ -200,7 +200,7 @@ async function sendChargingStations(mqttClient, { vin, stations }) {
 async function redisConnect() {
   const REDIS_URL = process.env.REDIS_URL;
   if (!REDIS_URL) {
-    throw new Error(`REDIS_URL environment variable is required`);
+    throw new Error(`REDIS_URL is not set`);
   }
   // Connect to Redis
   const redisClient = createClient({
@@ -243,20 +243,39 @@ async function registerJob(jobId) {
 
 // Sends Platform Event to Salesforce
 async function sendPlatformEvent({ context, logger }, { deliveryPlanId }) {
+  /**
+   * The following example demonstrates how to perform a REST API request to Salesforce
+   * using an http client library.
+   *
+   * For that, we need to build the API endpoint by getting the baseUrl and apiVersion from `context.org`
+   * and the `accessToken` from `context.org.dataApi`.
+   *
+   * We can also simplify this specific example by using the `context.org.dataApi` SDK to create an object.
+   *
+   * await context.org.dataApi.create({
+   *   type: "Job_Completed__e",
+   *   fields: {
+   *     DeliveryPlan_Id__c: deliveryPlanId
+   *   }
+   * });
+   *
+   */
   const { baseUrl, apiVersion } = context.org;
   const accessToken = context.org.dataApi.accessToken;
   const url = `${baseUrl}/services/data/v${apiVersion}/sobjects/JobCompleted__e/`;
-  const { statusCode } = await request(url, {
+  const { body, statusCode } = await request(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
-      DeliveryPlanId__c: deliveryPlanId
+      DeliveryPlan_Id__c: deliveryPlanId
     })
   });
   logger.info(
-    `Platform Event to Salesforce: ${url} - Status Code: ${statusCode}`
+    `Platform Event to Salesforce: ${url} - Status Code: ${statusCode} - body: ${JSON.stringify(
+      await body.json()
+    )}`
   );
 }

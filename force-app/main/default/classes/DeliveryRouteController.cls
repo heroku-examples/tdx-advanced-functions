@@ -15,34 +15,6 @@ public with sharing class DeliveryRouteController {
     }
   }
 
-  @AuraEnabled
-  public static void loadChargingStations(Id deliveryPlanId) {
-    try {
-      List<DeliveryWaypoint__c> waypoints = [
-        SELECT Id
-        FROM DeliveryWaypoint__c
-        WHERE DeliveryRoute__r.DeliveryPlan__c = :deliveryPlanId
-        WITH SECURITY_ENFORCED
-      ];
-      Integer jobs = waypoints.size();
-      if (jobs == 0) {
-        throw new AuraHandledException(
-          'No waypoints found for this delivery plan.'
-        );
-      }
-      // Schedule Job
-      JobManagerFunction.JobStatus status = JobManagerFunction.execute(jobs);
-      // Retrieve Charging Stations by Waypoint in Parallel
-      for (DeliveryWaypoint__c waypoint : waypoints) {
-        System.enqueueJob(
-          new ChargingStationsQueueable(status.jobId, waypoint)
-        );
-      }
-    } catch (Exception ex) {
-      throw new AuraHandledException(ex.getMessage());
-    }
-  }
-
   @AuraEnabled(cacheable=true)
   public static List<DeliveryWaypoint__c> getWaypoints(Id deliveryPlanId) {
     try {
@@ -60,6 +32,34 @@ public with sharing class DeliveryRouteController {
       ];
     } catch (Exception ex) {
       throw new AuraHandledException(ex.getMessage());
+    }
+  }
+
+  @AuraEnabled(cacheable=true)
+  public static List<ChargingStation__c> getChargingStations(
+    Id deliveryPlanId
+  ) {
+    try {
+      List<ChargingStation__c> chargingStations = [
+        SELECT
+          Id,
+          Name,
+          Street_Address__c,
+          City__c,
+          State__c,
+          Zip__c,
+          Location__latitude__s,
+          Location__longitude__s,
+          Distance__c
+        FROM ChargingStation__c
+        WHERE
+          Delivery_Waypoint__r.DeliveryRoute__r.DeliveryPlan__c = :deliveryPlanId
+        WITH SECURITY_ENFORCED
+        ORDER BY Distance__c
+      ];
+      return chargingStations;
+    } catch (Exception e) {
+      throw new AuraHandledException(e.getMessage());
     }
   }
 }

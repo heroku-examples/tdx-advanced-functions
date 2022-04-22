@@ -1,32 +1,56 @@
 <template>
   <lightning-card title="Current Deliveries" icon-name="standard:account">
-    <div class="slds-var-m-around_medium">
-      <template if:false={mapMarkers.length}>
-        No current deliveries.
-        <p>
-          <lightning-button
-            label="Plan Delivery"
-            variant="brand"
-            onclick={handlePlanDeliveryRoute}
-          ></lightning-button>
-        </p>
-      </template>
-      <template if:true={mapMarkers.length}>
-        <lightning-tabset>
-          <lightning-tab label="Map"
-            ><lightning-map map-markers={mapMarkers}></lightning-map
-          ></lightning-tab>
-          <lightning-tab label="Route Order">
-            <lightning-datatable
-              key-field="number"
-              data={datatableData}
-              columns={datatableColumns}
-              sorted-by="number"
-            >
-            </lightning-datatable>
-          </lightning-tab>
-        </lightning-tabset>
-      </template>
-    </div>
+    <template if:false={planningRoute}>
+      <lightning-button
+        label="Plan Delivery"
+        variant="brand"
+        onclick={handlePlanDeliveryRoute}
+        slot="actions"
+      ></lightning-button>
+    </template>
+    <template if:false={mapMarkers.length}>
+      <div class="slds-var-m-around_medium">
+        <template if:false={mapMarkers.length}>
+          <template if:false={planningRoute}>
+            No current deliveries, please plan a new delivery.
+          </template>
+          <template if:true={planningRoute}>
+            <div class="spinner-container">
+              <lightning-spinner
+                alternative-text="Planning delivery route..."
+                size="medium"
+              ></lightning-spinner>
+              <div class="spinner-text">{progressText}</div>
+              <lightning-progress-bar
+                value={progress}
+                size="large"
+                variant="circular"
+              ></lightning-progress-bar>
+            </div>
+          </template>
+        </template>
+      </div>
+    </template>
+    <template if:true={mapMarkers.length}>
+      <div class="slds-grid slds-gutters">
+        <div class="slds-col slds-size_2-of-3">
+          <lightning-map
+            map-markers={mapMarkers}
+            center={centerLocation}
+            markers-title="Delivery Plan"
+            list-view="hidden"
+          ></lightning-map>
+        </div>
+        <div class="slds-col slds-size_1-of-3">
+          <lightning-datatable
+            key-field="number"
+            data={datatableData}
+            columns={datatableColumns}
+            sorted-by="number"
+          >
+          </lightning-datatable>
+        </div>
+      </div>
+    </template>
   </lightning-card>
 </template>

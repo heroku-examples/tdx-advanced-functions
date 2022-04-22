@@ -1,0 +1,10 @@
+.spinner-container {
+  position: relative;
+  display: inline-block;
+  min-height: 250px;
+  width: 100%;
+}
+
+.spinner-text {
+  text-align: center;
+}
