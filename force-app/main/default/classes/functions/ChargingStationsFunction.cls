@@ -1,4 +1,13 @@
 public with sharing class ChargingStationsFunction {
+  public static void executeParallel(List<Input> inputs) {
+    for (Input input : inputs) {
+      ChargingStationsFunction.executeAsync(
+        input,
+        new JobCallback(input.jobId)
+      );
+    }
+  }
+
   public static void executeAsync(
     Input input,
     functions.FunctionCallback callback
@@ -7,15 +16,6 @@ public with sharing class ChargingStationsFunction {
       'tdx_advanced_functions.chargingstations'
     );
     fn.invoke(JSON.serialize(input), callback);
-  }
-
-  public static void executeParallel(List<Input> inputs) {
-    for (Input input : inputs) {
-      ChargingStationsFunction.executeAsync(
-        input,
-        new JobCallback(input.jobId)
-      );
-    }
   }
 
   public class Input {
