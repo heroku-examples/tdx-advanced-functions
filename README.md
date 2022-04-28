@@ -1,29 +1,87 @@
-# Staging Area to Collect Usefull Commands
+# Route Planner with Charging Stations
 
-    sfdx force:data:tree:import -p data/Account-Service__c-plan.json
-    sfdx force:user:permset:assign -n RoutePlanner
+## Salesforce Org Setup
 
-# Functions Environment Variables to Setup
+1. Create a Scratch Org
 
-    - MQTT_URL
-    - DATABASE_URL (Through Heroku Data Integration)
-    - REDIS_URL (Through Heroku Data Integration)
+```
+sfdx force:org:create -s -f config/project-scratch-def.json -a routeplannerdemo
+```
 
-# Salesforce DX Project: Next Steps
+2. Push Source to Org
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+```
+sfdx force:source:push
+```
 
-## How Do You Plan to Deploy Your Changes?
+3. Assign Permission Sets
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+```
+sfdx force:user:permset:assign -n RoutePlanner
+sfdx force:user:permset:assign -n Functions
+```
 
-## Configure Your Salesforce DX Project
+4. Import Sample Data
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+```
+sfdx force:data:tree:import -p data/Account-Service__c-plan.json
+```
 
-## Read All About It
+5. Create a Compute Environment to Deploy Functions
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+```
+sf env create compute -o routeplannerdemo -a routeplannerenv
+```
+
+6. Deploy Functions
+
+```
+sf deploy functions -o routeplannerdemo
+```
+
+7. Create Heroku Application for Data Resources
+
+```
+heroku create <app-name>
+```
+
+8. Add Heroku User Collaborator to Functions Account
+
+```
+sf env compute collaborator add --heroku-user username@example.com
+```
+
+9. Create Postgres and Redis Resources
+
+```
+ heroku addons:create heroku-postgresql:hobby-dev
+ heroku addons:create heroku-redis:hobby-dev
+```
+
+10. Attach Data Resources to Compute Environment
+
+```
+heroku addons:attach <example-postgres-database> --app <example-compute-environment-name>
+heroku addons:attach <example-redis-database> --app <example-compute-environment-name>
+```
+
+11. Deploy MQTT Heroku App
+
+```
+heroku config:set APP_BASE=apps/pulsar-mqtt-broker
+git push https://git.heroku.com/<heroku-app-name>.git main
+```
+
+12. Setup MQTT_URL env variable
+
+```
+sf env var set MQTT_URL=wss://<heroku-app-name>.herokuapp.com
+```
+
+13. Load Charging Stations Dataset
+
+```
+cd scripts
+heroku config --shell > .env
+node create-db.js
+```
