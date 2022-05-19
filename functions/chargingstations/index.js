@@ -166,7 +166,7 @@ async function mqttConnect() {
       reject(new Error("MQTT_URL is not set"));
     }
 
-    const mqttClient = mqtt.connect(process.env.MQTT_URL);
+    const mqttClient = mqtt.connect(MQTT_URL);
     mqttClient.on("connect", () => {
       resolve(mqttClient);
     });

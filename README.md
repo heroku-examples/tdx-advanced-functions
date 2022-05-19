@@ -1,6 +1,18 @@
 # Route Planner with Charging Stations
 
-## Salesforce Org Setup
+## Architecture
+
+![architecture](assets/architecture.png)
+
+## Apex Utility Classes
+
+![apex-utility-classes](assets/apex_classes.png)
+
+## Salesforce Schema
+
+![salesforce-schema](assets/schema.png)
+
+## Deployment Instructions
 
 1. Create a Scratch Org
 
