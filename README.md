@@ -79,12 +79,21 @@ heroku addons:attach <example-redis-database> --app <example-compute-environment
 
 11. Deploy MQTT Heroku App
 
+Setup [Monorepo](https://elements.heroku.com/buildpacks/lstoll/heroku-buildpack-monorepo) and Node.js Buildpacks:
+
+```
+heroku buildpacks:add https://github.com/lstoll/heroku-buildpack-monorepo -a <app-name>
+heroku buildpacks:add heroku/nodejs -a <app-name>
+```
+
+Deploy Application using the Monorepo buildpack
+
 ```
 heroku config:set APP_BASE=apps/pulsar-mqtt-broker
 git push https://git.heroku.com/<heroku-app-name>.git main
 ```
 
-12. Setup MQTT_URL env variable
+12. Setup `MQTT_URL` env variable
 
 ```
 sf env var set MQTT_URL=wss://<heroku-app-name>.herokuapp.com
@@ -94,6 +103,7 @@ sf env var set MQTT_URL=wss://<heroku-app-name>.herokuapp.com
 
 ```
 cd scripts
-heroku config --shell > .env
+npm install
+heroku config --shell -a <app-name> > .env
 node create-db.js
 ```
