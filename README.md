@@ -23,7 +23,7 @@ sfdx force:org:create -s -f config/project-scratch-def.json -a routeplannerdemo
 2. Push Source to Org
 
 ```
-sfdx force:source:push
+sfdx force:source:push -f
 ```
 
 3. Assign Permission Sets
