@@ -1,7 +1,7 @@
 {
   "orgName": "jduque company",
   "edition": "Developer",
-  "features": ["EnableSetPasswordInApi", "Functions"],
+  "features": ["EnableSetPasswordInApi", "Functions", "DataWeaveInApex"],
   "settings": {
     "lightningExperienceSettings": {
       "enableS1DesktopEnabled": true
